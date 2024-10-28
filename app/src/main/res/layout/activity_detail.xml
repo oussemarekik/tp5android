@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F4ECEC"
+    tools:context=".DetailActivity">
+
+    <!-- CardView pour afficher le logo et le texte -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="16dp"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <!-- Image du logo -->
+            <ImageView
+                android:id="@+id/imageView8"
+                android:layout_width="200dp"
+                android:layout_height="100dp"
+                android:scaleType="centerInside"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <!-- Titre "SERVICES" -->
+            <TextView
+                android:id="@+id/textViewServices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SERVICES"
+                android:textSize="18sp"
+                android:textColor="#D35400"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold" />
+
+            <!-- Liste des services -->
+
+
+            <ListView
+                android:id="@+id/servicesListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Section avec les icônes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp">
+
+        <!-- Icône du site web -->
+        <ImageView
+            android:id="@+id/iconWebsite"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/www"
+             />
+
+        <!-- Icône de contact -->
+        <ImageView
+            android:id="@+id/iconContact"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/tele"
+             />
+    </LinearLayout>
+</LinearLayout>
