@@ -62,6 +62,29 @@
         android:layout_marginTop="16dp">
 
         <!-- Icône du site web -->
+
+
+        <ImageView
+            android:id="@+id/iconagenda"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/agenda" />
+
+        <ImageView
+            android:id="@+id/iconmap"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/locationit" />
+
+        <ImageView
+            android:id="@+id/iconEmail"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            app:srcCompat="@drawable/av0qxsb65" />
+
         <ImageView
             android:id="@+id/iconWebsite"
             android:layout_width="48dp"
@@ -79,4 +102,5 @@
             app:srcCompat="@drawable/tele"
              />
     </LinearLayout>
+
 </LinearLayout>
