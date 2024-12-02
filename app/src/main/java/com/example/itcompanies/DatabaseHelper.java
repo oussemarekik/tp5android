@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "mydatabase.db";
     private static final int DATABASE_VERSION = 2; // Version incrémentée
-
+    private static   int ajout=0;
     public static final String TABLE_COMPANIES = "companies";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
@@ -42,13 +43,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_LONGITUDE + " TEXT" +
                     ");";
 
+    Context context;
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context; // Stockage du contexte
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TABLE_CREATE);
+        addSampleData(context,db);
+
     }
 
     @Override
@@ -57,35 +63,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TABLE_COMPANIES + " ADD COLUMN " + COLUMN_IMAGE + " TEXT");
         }
     }
-    void addSampleData(Context context) {
+    void addSampleData(Context context,SQLiteDatabase db) {
         // Convertir les ressources drawable en Bitmap
+            Bitmap actiaImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.actia);
+            Bitmap fodImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.fod);
+            Bitmap sofrecomImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.sofrecom);
+            Bitmap sparkImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.spark);
+            Bitmap udiniImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.udini);
+            Bitmap primatecImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.primatec);
 
-        Bitmap actiaImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.actia);
-        Bitmap fodImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.fod);
-        Bitmap sofrecomImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.sofrecom);
-        Bitmap sparkImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.spark);
-        Bitmap udiniImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.udini);
-        Bitmap primatecImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.primatec);
+            // Insérer les entreprises avec les images sous forme de Bitmap
+            ArrayList<String> services1 = new ArrayList<>(Arrays.asList("Web Development", "Mobile Development"));
+        insertCompanyAddSampleData("Actia", services1, "www.actia.com", "+123456789", actiaImage, "info@actia.com", "34.8343499806865", "10.751750171336644", db);
 
-        // Insérer les entreprises avec les images sous forme de Bitmap
-        ArrayList<String> services1 = new ArrayList<>(Arrays.asList("Web Development", "Mobile Development"));
-        insertCompany("Actia", services1, "www.actia.com", "+123456789", actiaImage, "info@actia.com", "34.8343499806865", "10.751750171336644", context);
+            ArrayList<String> services2 = new ArrayList<>(Arrays.asList("Expertise", "Consulting"));
+        insertCompanyAddSampleData("FOD", services2, "www.fod.com", "+987654321", fodImage, "contact@fod.com", "48.8566", "2.3522", db);
 
-        ArrayList<String> services2 = new ArrayList<>(Arrays.asList("Expertise", "Consulting"));
-        insertCompany("FOD", services2, "www.fod.com", "+987654321", fodImage, "contact@fod.com", "48.8566", "2.3522", context);
+            ArrayList<String> services3 = new ArrayList<>(Arrays.asList("Telecommunications", "Cloud Solutions"));
+        insertCompanyAddSampleData("Sofrecom", services3, "www.sofrecom.com", "+5647382910", sofrecomImage, "support@sofrecom.com", "40.7128", "-74.0060", db);
 
-        ArrayList<String> services3 = new ArrayList<>(Arrays.asList("Telecommunications", "Cloud Solutions"));
-        insertCompany("Sofrecom", services3, "www.sofrecom.com", "+5647382910", sofrecomImage, "support@sofrecom.com", "40.7128", "-74.0060", context);
+            ArrayList<String> services4 = new ArrayList<>(Arrays.asList("AI Development", "Data Science"));
+        insertCompanyAddSampleData("Spark", services4, "www.spark.com", "+1029384756", sparkImage, "hello@spark.com", "34.0522", "-118.2437", db);
 
-        ArrayList<String> services4 = new ArrayList<>(Arrays.asList("AI Development", "Data Science"));
-        insertCompany("Spark", services4, "www.spark.com", "+1029384756", sparkImage, "hello@spark.com", "34.0522", "-118.2437", context);
+            ArrayList<String> services5 = new ArrayList<>(Arrays.asList("Digital Marketing", "SEO"));
+        insertCompanyAddSampleData("Udini", services5, "www.udini.com", "+1928374650", udiniImage, "contact@udini.com", "51.5074", "-0.1278", db);
 
-        ArrayList<String> services5 = new ArrayList<>(Arrays.asList("Digital Marketing", "SEO"));
-        insertCompany("Udini", services5, "www.udini.com", "+1928374650", udiniImage, "contact@udini.com", "51.5074", "-0.1278", context);
+            ArrayList<String> services6 = new ArrayList<>(Arrays.asList("Embedded Systems", "Automotive"));
+        insertCompanyAddSampleData("Primatec", services6, "www.primatec.com", "+2039485761", primatecImage, "info@primatec.com", "37.7749", "-122.4194", db);
 
-        ArrayList<String> services6 = new ArrayList<>(Arrays.asList("Embedded Systems", "Automotive"));
-        insertCompany("Primatec", services6, "www.primatec.com", "+2039485761", primatecImage, "info@primatec.com", "37.7749", "-122.4194", context);
-    }
+
+
+
+        }
 
     // Méthode pour sauvegarder une image dans le stockage interne
     private String saveImageToInternalStorage(Context context, Bitmap bitmap, String imageName) {
@@ -100,6 +109,143 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return imageFile.getAbsolutePath(); // Retourne le chemin de l'image
+    }
+    // Méthode pour récupérer une entreprise par son nom
+    public Compines getCompanyByName(String name, Context context) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COLUMN_ID, COLUMN_NAME, COLUMN_SERVICES, COLUMN_WEBSITE, COLUMN_PHONE, COLUMN_IMAGE, COLUMN_EMAIL, COLUMN_LATITUDE, COLUMN_LONGITUDE};
+        String selection = COLUMN_NAME + " = ?";
+        String[] selectionArgs = {name};
+        Cursor cursor = db.query(TABLE_COMPANIES, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String companyName = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+            String servicesString = cursor.getString(cursor.getColumnIndex(COLUMN_SERVICES));
+            ArrayList<String> services = new ArrayList<>(Arrays.asList(servicesString.split(", ")));
+            String website = cursor.getString(cursor.getColumnIndex(COLUMN_WEBSITE));
+            String phone = cursor.getString(cursor.getColumnIndex(COLUMN_PHONE));
+
+            // Charger l'image depuis son chemin
+            String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
+            Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+            String email = cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL));
+            String latitude = cursor.getString(cursor.getColumnIndex(COLUMN_LATITUDE));
+            String longitude = cursor.getString(cursor.getColumnIndex(COLUMN_LONGITUDE));
+
+            // Créer et retourner un objet Compines
+            Compines company = new Compines(image, companyName, services, website, phone, email, latitude, longitude);
+            cursor.close();
+            db.close();
+            return company;
+        } else {
+            if (cursor != null) cursor.close();
+            db.close();
+            return null; // Aucun enregistrement trouvé
+        }
+    }
+
+    // Méthode pour récupérer une entreprise par son ID
+    public Compines getCompanyById(int id, Context context) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COLUMN_ID, COLUMN_NAME, COLUMN_SERVICES, COLUMN_WEBSITE, COLUMN_PHONE, COLUMN_IMAGE, COLUMN_EMAIL, COLUMN_LATITUDE, COLUMN_LONGITUDE};
+        String selection = COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = db.query(TABLE_COMPANIES, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME));
+            String servicesString = cursor.getString(cursor.getColumnIndex(COLUMN_SERVICES));
+            ArrayList<String> services = new ArrayList<>(Arrays.asList(servicesString.split(", ")));
+            String website = cursor.getString(cursor.getColumnIndex(COLUMN_WEBSITE));
+            String phone = cursor.getString(cursor.getColumnIndex(COLUMN_PHONE));
+
+            // Charger l'image depuis son chemin
+            String imagePath = cursor.getString(cursor.getColumnIndex(COLUMN_IMAGE));
+            Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+            String email = cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL));
+            String latitude = cursor.getString(cursor.getColumnIndex(COLUMN_LATITUDE));
+            String longitude = cursor.getString(cursor.getColumnIndex(COLUMN_LONGITUDE));
+
+            // Créer et retourner un objet Compines
+            Compines company = new Compines(image, name, services, website, phone, email, latitude, longitude);
+            cursor.close();
+            db.close();
+            return company;
+        } else {
+            cursor.close();
+            db.close();
+            return null; // Aucun enregistrement trouvé
+        }
+    }
+    public Compines getCompanyByName(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns = {COLUMN_ID, COLUMN_NAME, COLUMN_SERVICES, COLUMN_WEBSITE, COLUMN_PHONE, COLUMN_IMAGE, COLUMN_EMAIL, COLUMN_LATITUDE, COLUMN_LONGITUDE};
+        String selection = COLUMN_NAME + " = ?";
+        String[] selectionArgs = {name};
+        Cursor cursor = db.query(TABLE_COMPANIES, columns, selection, selectionArgs, null, null, null);
+
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                String companyName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
+                String servicesString = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SERVICES));
+                ArrayList<String> services = new ArrayList<>(Arrays.asList(servicesString.split(", ")));
+                String website = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_WEBSITE));
+                String phone = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHONE));
+
+                // Charger l'image depuis le chemin
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_IMAGE));
+                Bitmap image = BitmapFactory.decodeFile(imagePath);
+
+                String email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EMAIL));
+                String latitude = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LATITUDE));
+                String longitude = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LONGITUDE));
+
+                // Créer et retourner l'objet Compines
+                Compines c= new Compines(image, companyName, services, website, phone, email, latitude, longitude);
+                c.setId(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)));
+                return  c;
+            }
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Erreur lors de la lecture de la base : " + e.getMessage());
+        } finally {
+            if (cursor != null) cursor.close();
+            db.close();
+        }
+        return null;
+    }
+
+    // Méthode pour mettre à jour une entreprise
+    public int updateCompany(int id, String name, ArrayList<String> services, String website, String phone,
+                             Bitmap image, String email, String latitude, String longitude, Context context) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NAME, name);
+
+        String servicesString = String.join(", ", services);
+        values.put(COLUMN_SERVICES, servicesString);
+
+        values.put(COLUMN_WEBSITE, website);
+        values.put(COLUMN_PHONE, phone);
+
+        // Sauvegarder l'image et stocker son chemin
+        String imagePath = saveImageToInternalStorage(context, image, name);
+        values.put(COLUMN_IMAGE, imagePath);
+
+        values.put(COLUMN_EMAIL, email);
+        values.put(COLUMN_LATITUDE, latitude);
+        values.put(COLUMN_LONGITUDE, longitude);
+
+        // Sélectionner l'entreprise à mettre à jour par son ID
+        String selection = COLUMN_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+
+        // Mettre à jour l'entreprise dans la base de données
+        int rowsUpdated = db.update(TABLE_COMPANIES, values, selection, selectionArgs);
+        db.close();
+        return rowsUpdated; // Retourner le nombre de lignes mises à jour
     }
 
     // Insérer une entreprise avec stockage d'image
@@ -167,6 +313,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return imageFile.getAbsolutePath(); // Retourne le chemin du fichier sauvegardé
+    }
+    public void insertCompanyAddSampleData(String name, ArrayList<String> services, String website, String phone,
+                                           Bitmap image, String email, String latitude, String longitude,
+                                           SQLiteDatabase db) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NAME, name);
+
+        // Convertir la liste de services en chaîne
+        String servicesString = String.join(", ", services);
+        values.put(COLUMN_SERVICES, servicesString);
+
+        values.put(COLUMN_WEBSITE, website);
+        values.put(COLUMN_PHONE, phone);
+
+        // Sauvegarder l'image et stocker son chemin
+        String imagePath = saveImageToInternalStorage(context, image, name);
+        values.put(COLUMN_IMAGE, imagePath);
+
+        values.put(COLUMN_EMAIL, email);
+        values.put(COLUMN_LATITUDE, latitude);
+        values.put(COLUMN_LONGITUDE, longitude);
+
+        // Insérer les valeurs dans la table
+        db.insert(TABLE_COMPANIES, null, values);
     }
     // Méthode pour récupérer toutes les entreprises
     public ArrayList<Compines> getAllCompanies(Context context) {

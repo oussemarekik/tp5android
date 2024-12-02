@@ -43,8 +43,6 @@
                 android:textStyle="bold" />
 
             <!-- Liste des services -->
-
-
             <ListView
                 android:id="@+id/servicesListView"
                 android:layout_width="match_parent"
@@ -62,8 +60,6 @@
         android:layout_marginTop="16dp">
 
         <!-- Icône du site web -->
-
-
         <ImageView
             android:id="@+id/iconagenda"
             android:layout_width="48dp"
@@ -90,8 +86,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="8dp"
-            app:srcCompat="@drawable/www"
-             />
+            app:srcCompat="@drawable/www" />
 
         <!-- Icône de contact -->
         <ImageView
@@ -99,8 +94,16 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="8dp"
-            app:srcCompat="@drawable/tele"
-             />
+            app:srcCompat="@drawable/tele" />
     </LinearLayout>
 
+    <!-- Bouton pour modifier -->
+    <Button
+        android:id="@+id/btnModify"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Modifier"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#D35400"
+        android:textColor="#FFFFFF" />
 </LinearLayout>

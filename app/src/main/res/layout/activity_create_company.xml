@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateCompanyActivity">
+    tools:context=".EditCompanyActivity">
 
     <EditText
         android:id="@+id/editTextCompanyName"
@@ -97,7 +97,6 @@
         android:layout_marginTop="16dp"
         android:layout_centerHorizontal="true"
         android:contentDescription="Company Logo"
-        android:src="@drawable/default_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editTextCompanyLongitude" />
@@ -107,7 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Save Company"
+        android:text="Save Changes"
         android:textColor="@android:color/white"
         android:backgroundTint="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"

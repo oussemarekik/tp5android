@@ -2,6 +2,7 @@ package com.example.itcompanies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,8 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.CompanyV
 
     @Override
     public void onBindViewHolder(CompanyViewHolder holder, int position) {
-        final Compines company = companyList.get(position);
+
+        final Compines company =  companyList.get(position);
 
         holder.nameTextView.setText(company.getName());
         // Remplacez par l'image correspondante à chaque entreprise
@@ -39,9 +41,15 @@ public class CompanyAdapter extends RecyclerView.Adapter<CompanyAdapter.CompanyV
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, DetailActivity.class);
-                intent.putExtra("compines", company);
-                context.startActivity(intent);
+                Log.d("CompanyAdapter", "Company clicked: " + company.getName());  // Ajout du log pour déboguer
+                if (company.getImage() != null) {
+                    Intent intent = new Intent(context, DetailActivity.class);
+                    intent.putExtra("compinesName", company.getName());
+                    context.startActivity(intent);
+                } else {
+                    Log.e("DetailActivity", "L'image de l'entreprise est null");
+                }
+
             }
         });
     }

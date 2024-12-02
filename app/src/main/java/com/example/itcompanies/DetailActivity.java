@@ -3,12 +3,15 @@ package com.example.itcompanies;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,78 +20,96 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import java.time.Clock;
-
 public class DetailActivity extends AppCompatActivity {
+    DatabaseHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_detail);
-        ImageView www=findViewById(R.id.iconWebsite);
-        ImageView tel=findViewById(R.id.iconContact);
-        Compines compines = (Compines) getIntent().getSerializableExtra("compines");
-        ImageView email=findViewById(R.id.iconEmail);
-        TextView nameView = findViewById(R.id.textViewServices);
-        ImageView location=findViewById(R.id.iconmap);
-        ImageView imageView = findViewById(R.id.imageView8);
-        ListView servicesListView = findViewById(R.id.servicesListView);
-        ImageView agenda=findViewById(R.id.iconagenda);
+        dbHelper = new DatabaseHelper(this);
 
+        // Initialisation des vues
+        ImageView www = findViewById(R.id.iconWebsite);
+        ImageView tel = findViewById(R.id.iconContact);
+        ImageView email = findViewById(R.id.iconEmail);
+        ImageView location = findViewById(R.id.iconmap);
+        ImageView imageView = findViewById(R.id.imageView8);
+        ImageView agenda = findViewById(R.id.iconagenda);
+        TextView nameView = findViewById(R.id.textViewServices);
+        ListView servicesListView = findViewById(R.id.servicesListView);
+        Button editButton = findViewById(R.id.btnModify);
+
+        // Récupération de l'objet Parcelable
+        String namecompines = (String) getIntent().getStringExtra("compinesName");
+        if (namecompines == null) {
+            Toast.makeText(this, "Erreur : données manquantes", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        Compines compines= dbHelper.getCompanyByName(namecompines);
+        // Affichage du nom et des services
         nameView.setText(compines.getName());
-        imageView.setImageBitmap(compines.getImage());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, compines.getServices());
         servicesListView.setAdapter(adapter);
-        agenda.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(DetailActivity.this, CalanderActivity.class);
-                startActivity(intent);
-            }
-        });
-        location.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"+compines.getLatitude()+","+compines.getLongitude()));
-                startActivity(mapIntent);
-            }
-        });
-        email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showEmailDialog(compines.getEmail());
 
+        // Affichage de l'image
+        byte[] imageBytes = compines.getImageBytes();
+        if (imageBytes != null && imageBytes.length > 0) {
+            Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            imageView.setImageBitmap(image);
+        } else {
+            imageView.setImageResource(R.drawable.default_logo); // Placeholder par défaut
+        }
 
-            }
+        // Gestion des clics
+        agenda.setOnClickListener(view -> {
+            Intent intent = new Intent(DetailActivity.this, CalanderActivity.class); // Vérifiez le manifeste
+            startActivity(intent);
         });
-        www.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                String website = compines.getWebsite();
+        editButton.setOnClickListener(view -> {
+            Intent intent = new Intent(DetailActivity.this, EditCompanyActivity.class);
+            intent.putExtra("companyName", compines.getName()); // Passer les détails nécessaires
+            startActivity(intent);
+        });
+
+        location.setOnClickListener(view -> {
+            String geoUri = "geo:" + compines.getLatitude() + "," + compines.getLongitude();
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+            startActivity(mapIntent);
+        });
+
+        email.setOnClickListener(view -> showEmailDialog(compines.getEmail()));
+
+        www.setOnClickListener(view -> {
+            String website = compines.getWebsite();
+            if (website != null && !website.isEmpty()) {
                 if (!website.startsWith("http://") && !website.startsWith("https://")) {
                     website = "http://" + website;
                 }
-                Uri link = Uri.parse(website);
-                Intent web = new Intent(Intent.ACTION_VIEW, link);
-                startActivity(web);
-            }
-        });
-        tel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Uri number=Uri.parse("tel:"+compines.getPhone());
-                Intent callIntent=new Intent(Intent.ACTION_DIAL,number);
-                startActivity(callIntent);
+                try {
+                    Uri link = Uri.parse(website);
+                    Intent web = new Intent(Intent.ACTION_VIEW, link);
+                    startActivity(web);
+                } catch (Exception e) {
+                    Toast.makeText(DetailActivity.this, "URL invalide", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(DetailActivity.this, "Aucun site web fourni", Toast.LENGTH_SHORT).show();
             }
         });
 
+        tel.setOnClickListener(view -> {
+            Uri number = Uri.parse("tel:" + compines.getPhone());
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
+            startActivity(callIntent);
+        });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -96,93 +117,32 @@ public class DetailActivity extends AppCompatActivity {
             return insets;
         });
     }
+
     private void showEmailDialog(String email) {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        // Create EditText for subject
+        // Champs de texte pour l'email
         final EditText subjectInput = new EditText(this);
         subjectInput.setHint("Objet");
         layout.addView(subjectInput);
 
-        // Create EditText for message
         final EditText messageInput = new EditText(this);
         messageInput.setHint("Message");
         layout.addView(messageInput);
 
-        // Create the AlertDialog
+        // Créez la boîte de dialogue
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Envoyer un e-mail")
                 .setView(layout)
-                .setPositiveButton("Envoyer", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String subject = subjectInput.getText().toString();
-                        String message = messageInput.getText().toString();
-                        sendEmail(email, subject, message);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                showRatingDialog();
-                            }
-                        }, 3000); // Délai de 3 secondes
-                    }
+                .setPositiveButton("Envoyer", (dialog, which) -> {
+                    String subject = subjectInput.getText().toString();
+                    String message = messageInput.getText().toString();
+                    sendEmail(email, subject, message);
+                    new Handler().postDelayed(this::showRatingDialog, 3000); // Afficher le RatingBar après 3s
                 })
-                .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                .setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
 
-        // Show the dialog
-        builder.show();
-    }
-    private void showRatingDialog() {
-        // Create a LinearLayout for the RatingBar
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-
-        // Create the RatingBar
-        RatingBar ratingBar = new RatingBar(this);
-        ratingBar.setNumStars(5); // Set the number of stars to 5
-        ratingBar.setStepSize(1);  // Set step size to 1
-        ratingBar.setRating(0);    // Initial rating value
-
-        // Optional: Set layout params for the RatingBar
-        LinearLayout.LayoutParams ratingParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        ratingBar.setLayoutParams(ratingParams);
-
-        // Add the RatingBar to the layout
-        layout.addView(ratingBar);
-
-        // Create the AlertDialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Évaluez l'entreprise")
-                .setView(layout)
-                .setPositiveButton("Envoyer", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Process the rating here if needed
-                        float rating = ratingBar.getRating();
-                        Toast.makeText(DetailActivity.this, "Vous avez noté : " + rating, Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-        // Show the dialog
         builder.show();
     }
 
@@ -194,11 +154,29 @@ public class DetailActivity extends AppCompatActivity {
         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
         try {
             startActivity(Intent.createChooser(emailIntent, "Envoyer l'email avec :"));
-            // Utiliser Handler pour afficher le RatingBar après 3 secondes
-
-
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(getApplicationContext(), "Aucune application d'e-mail n'est installée.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Aucune application d'e-mail n'est installée.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showRatingDialog() {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        RatingBar ratingBar = new RatingBar(this);
+        ratingBar.setNumStars(5);
+        ratingBar.setStepSize(1);
+        layout.addView(ratingBar);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Évaluez l'entreprise")
+                .setView(layout)
+                .setPositiveButton("Envoyer", (dialog, which) -> {
+                    float rating = ratingBar.getRating();
+                    Toast.makeText(this, "Vous avez noté : " + rating, Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Annuler", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 }

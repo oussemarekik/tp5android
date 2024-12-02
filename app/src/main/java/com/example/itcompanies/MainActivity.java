@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         dbHelper = new DatabaseHelper(this);
-        dbHelper.addSampleData(this);
+
         recyclerView = findViewById(R.id.companiesRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
