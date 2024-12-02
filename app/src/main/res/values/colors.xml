@@ -3,4 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="colorPrimary">#6200EE</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="teal_700">#008080</color>  <!-- Vous pouvez définir cette couleur comme vous le souhaitez -->
+
 </resources>

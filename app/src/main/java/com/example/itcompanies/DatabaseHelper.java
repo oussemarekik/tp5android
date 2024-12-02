@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.example.itcompanies.utils.PasswordUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -42,7 +44,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_LATITUDE + " TEXT, " +
                     COLUMN_LONGITUDE + " TEXT" +
                     ");";
+    // Constantes pour la table user
+    public static final String TABLE_USER = "user";
+    public static final String COLUMN_USER_ID = "_id";
+    public static final String COLUMN_USERNAME = "username";
+    public static final String COLUMN_PASSWORD = "password";
+    public static final String COLUMN_EMAILUSER = "email";
+    public static final String COLUMN_CREATED_AT = "created_at";
 
+    // Script de création de la table user
+    private static final String TABLE_USER_CREATE =
+            "CREATE TABLE " + TABLE_USER + " (" +
+                    COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_USERNAME + " TEXT UNIQUE, " +
+                    COLUMN_PASSWORD + " TEXT, " +
+                    COLUMN_EMAILUSER + " TEXT, " +
+                    COLUMN_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP" +
+                    ");";
     Context context;
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,6 +71,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TABLE_CREATE);
+        // Créer la table user
+        db.execSQL(TABLE_USER_CREATE);
         addSampleData(context,db);
 
     }
@@ -62,6 +82,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TABLE_COMPANIES + " ADD COLUMN " + COLUMN_IMAGE + " TEXT");
         }
+        if (oldVersion < 3) {
+            db.execSQL(TABLE_USER_CREATE); // Créer la table user si la version est mise à jour
+            insertUser("oussema","123456","rekik@gmail.com");
+        }
+    }
+    //autheniticate
+    public boolean authenticateUser(String username, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Récupérer le mot de passe haché depuis la base de données
+        String query = "SELECT " + COLUMN_PASSWORD + " FROM " + TABLE_USER +
+                " WHERE " + COLUMN_USERNAME + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username});
+
+        if (cursor.moveToFirst()) {
+            String storedHashedPassword = cursor.getString(0);
+            cursor.close();
+            db.close();
+
+            // Hacher le mot de passe saisi et le comparer avec celui stocké
+            String hashedPassword = PasswordUtils.hashPassword(password);
+            return storedHashedPassword.equals(hashedPassword);
+        }
+
+        cursor.close();
+        db.close();
+        return false; // Utilisateur non trouvé ou mot de passe incorrect
+    }
+    // ajouter user
+    public boolean insertUser(String username, String password, String email) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Hacher le mot de passe avant de l'insérer
+        String hashedPassword = PasswordUtils.hashPassword(password);
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USERNAME, username);
+        values.put(COLUMN_PASSWORD, hashedPassword);
+        values.put(COLUMN_EMAILUSER, email);
+
+        long result = db.insert(TABLE_USER, null, values);
+        db.close();
+        return result != -1;
+    }
+    // Méthode pour supprimer une entreprise par ID
+    public boolean deleteCompanyById(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_COMPANIES, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        db.close();
+        return rowsDeleted > 0; // Retourne true si une ou plusieurs lignes ont été supprimées
     }
     void addSampleData(Context context,SQLiteDatabase db) {
         // Convertir les ressources drawable en Bitmap

@@ -59,7 +59,7 @@
         android:gravity="center"
         android:layout_marginTop="16dp">
 
-        <!-- Icône du site web -->
+        <!-- Icônes -->
         <ImageView
             android:id="@+id/iconagenda"
             android:layout_width="48dp"
@@ -88,7 +88,6 @@
             android:layout_margin="8dp"
             app:srcCompat="@drawable/www" />
 
-        <!-- Icône de contact -->
         <ImageView
             android:id="@+id/iconContact"
             android:layout_width="48dp"
@@ -97,13 +96,35 @@
             app:srcCompat="@drawable/tele" />
     </LinearLayout>
 
-    <!-- Bouton pour modifier -->
-    <Button
-        android:id="@+id/btnModify"
+    <!-- Boutons Modifier et Supprimer -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Modifier"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#D35400"
-        android:textColor="#FFFFFF" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp">
+
+        <!-- Bouton Modifier -->
+        <Button
+            android:id="@+id/btnModify"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Modifier"
+            android:backgroundTint="#D35400"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/btn_rounded_orange" />
+
+        <!-- Bouton Supprimer -->
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Supprimer"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/btn_rounded_red" />
+    </LinearLayout>
 </LinearLayout>

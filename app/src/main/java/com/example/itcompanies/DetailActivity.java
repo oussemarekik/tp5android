@@ -44,7 +44,7 @@ public class DetailActivity extends AppCompatActivity {
         TextView nameView = findViewById(R.id.textViewServices);
         ListView servicesListView = findViewById(R.id.servicesListView);
         Button editButton = findViewById(R.id.btnModify);
-
+        Button deleteButton= findViewById(R.id.btnDelete);
         // Récupération de l'objet Parcelable
         String namecompines = (String) getIntent().getStringExtra("compinesName");
         if (namecompines == null) {
@@ -66,7 +66,14 @@ public class DetailActivity extends AppCompatActivity {
         } else {
             imageView.setImageResource(R.drawable.default_logo); // Placeholder par défaut
         }
-
+        //delete button
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dbHelper.deleteCompanyById(compines.getId());
+                finish();
+            }
+        });
         // Gestion des clics
         agenda.setOnClickListener(view -> {
             Intent intent = new Intent(DetailActivity.this, CalanderActivity.class); // Vérifiez le manifeste
